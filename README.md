@@ -1,1 +1,1 @@
-Generate tab in lilypond
+Generate notes from banjo tab for LilyPond.

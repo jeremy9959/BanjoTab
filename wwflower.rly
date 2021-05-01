@@ -1,0 +1,80 @@
+\version "2.22.1"
+\paper { indent=0 }
+\header {
+  title="Wildwood Flower"
+  composer = "Traditional (arr. Matt Brown)"
+}
+music ={
+\time 4/4
+\set Timing.beamExceptions = #'()
+\set Timing.beatStructure = 1,1,1,1
+
+%!
+r2 1.0.4 1.1.4
+!%
+\repeat volta 2 {
+
+%!
+0.0.4 4.0.8 0.0.8 1.5.4 4.0.4
+1.0.4 4.0.8 0.0.8 1.1.4 1.0.4
+2.2.4 4.0.8 0.0.8 2.4.8 2.2.8 3.4.4
+2.0.4 4.0.8 0.0.8 3.2.8 3.5.8 4.0.8 0.0.8
+!%
+
+}                                                                                
+\alternative {
+{
+
+%! 
+2.0.4 4.0.8 0.0.8 1.0.4 1.1.4
+!%
+
+}
+{
+%!
+2.0.4 4.0.4 0.0.4 4.0.4
+!%
+}
+}
+
+%!
+0.7.8( 0.9.8) 4.0.8 0.9.8 4.0.4 0.7.4
+1.8.4 4.0.4 0.0.4 4.0.4 <0.2 1.1>4 4.0.4 0.4.4 0.2.4
+0.0.4 4.0.8 0.0.8 2.0.4 2.2.4
+2.2.8 2.4.8 4.0.8 0.0.8 1.0.4 1.0.4
+0.0.4 4.0.8 0.0.8 1.1.8 1.0.8 4.0.8 0.0.8
+2.2.4 3.0.4 2.4.8 2.2.8 3.4.4
+2.0.4 4.0.8 0.0.8 3.2.8 3.5.8  4.0.8 0.0.8
+2.0.4 <0.0 4.0>4 1.0.4 1.1.4
+!%
+
+\bar "|."
+}
+
+\score {
+  \new StaffGroup <<
+    \new Staff \with {                                                             
+      \omit StringNumber                                                         
+    }                                                                          
+    {                                                                          
+      \key g \major                                                             
+      \numericTimeSignature                                                    
+      {\music}                                               
+    }                                                                               
+    \new TabStaff \with {                                                         
+      tablatureFormat = #fret-number-tablature-format-banjo                       
+      stringTunings = \stringTuning <g'' d' g' b' d''>
+    }                                                                             
+    {                                                                             
+      {                                                                           
+	\clef moderntab                                                          
+	\numericTimeSignature                                                    
+	\tabFullNotation                                                         
+	{\music}                                               
+      }
+    }
+  >>
+  \header {
+    piece = "gDGBD"
+  }
+  }
