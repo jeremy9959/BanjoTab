@@ -118,7 +118,29 @@ c''2
 \bar "|."
 }
 
+
+\new Staff {
+    \numericTimeSignature
+    {\transpose c d {\music}}
+  }
+
 \score {
-  \new Staff {
-    \transpose c d {\music }
-}}
+\new TabStaff \with {
+    tablatureFormat = #fret-number-tablature-format-banjo
+    stringTunings = \stringTuning <a'' d' a' d'' e''>
+  }
+  {
+    {
+      \clef moderntab
+      \numericTimeSignature
+      \tabFullNotation
+      {\transpose c d {\music}}
+    }
+  }
+  \header {
+    piece = "aDADE"
+  }
+}
+  
+  
+
