@@ -119,11 +119,6 @@ c''2
 }
 
 
-\new Staff {
-    \numericTimeSignature
-    {\transpose c d {\music}}
-  }
-
 \score {
 \new TabStaff \with {
     tablatureFormat = #fret-number-tablature-format-banjo
