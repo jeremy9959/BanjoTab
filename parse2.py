@@ -1,5 +1,7 @@
-import re
+#!/home/jet08013/anaconda3/bin/python
 
+import re
+import sys
 notes = {
     0: 'c',
     1: 'cis',
@@ -52,24 +54,18 @@ def filter(s):
     result = ''
     i=0
     N=len(s)
-    for i in range(N):
+    while i<N:
         tab_try = re.match(tab, s[i:])
         if tab_try:
-            print('Found',tab_try.group(0)[0],tab_try.group(0)[-1])
             parsed = parse(tab_try.group('tab'))
-            print(len(tab_try.group(0)), tab_try.end()-tab_try.start())
-            print('Result:',parsed, len(parsed))
             result += parsed
             i += (tab_try.end(0)-tab_try.start(0))
-            print('Next characters are',s[i:i+30]) 
             continue
         result += s[i]
         i += 1
-    print('Done')
     return result
 
 def parse(s):
-    print('Parsing {}'.format(s))
     parsed = ''
     N = len(s)
     i = 0
@@ -147,6 +143,29 @@ music ={
 %
 }
 }
+\\repeat volta 2 {
+%
+2.0.8 3.2.8 3.4.8 3.5.8 3.4.4 1.0.8 2.2.8                                       
+2.0.8 3.2.8 3.4.8 3.5.8 3.4.4 1.0.8 2.2.8                                       
+2.0.4 3.4.4 3.5.4 3.4.4                                                         
+3.2.2  3.2.4 1.0.8 2.2.8                                                        
+2.0.8 3.4.8 3.0.8 3.4.8 2.0.8 3.4.8 3.0.8 3.2.16 3.4.16                         
+3.5.8 3.4.8 3.5.8 2.0.8 2.2.8 2.4.8 1.0.8 2.2.8                                 
+2.0.8 3.5.8  3.4.8 3.0.8 3.2.2                                                  
+%
+}
+\\alternative {
+{
+%
+3.0.2 3.0.4  1.0.8 2.2.8
+%
+}
+{
+%
+1.0.2~ 1.0.2
+%
+}
+}
 \\bar \"|.\"
 }
 
@@ -179,4 +198,8 @@ music ={
 }                                                                               
 """
 
-print(filter(staff_code))
+if __name__ == '__main__':
+    with(sys.stdin) as f:
+        data = f.read()
+    parsed = filter(data)
+    print(parsed)
