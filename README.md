@@ -6,7 +6,7 @@ As a banjo player I sometimes want to transcribe a piece into notation and/or ta
 being an expert at converting from string+fret positions on the banjo into standard notation,
 I wanted to be able to enter music by giving string+fret together with tuning information to lilypond.
 
-This code is a preprocessor lilypond files that converts string+fret information into
+This code is a preprocessor for lilypond files that converts string+fret information into
 standard notation that can be typeset in lilypond.
 
 ## Example
@@ -27,6 +27,10 @@ for Soldier's Joy written  in this simplified notation.
 >!%
 
 The %! is a flag telling the preprocessor to translate up to the end tag !%.
+The DoubleC notation says that the tab info should be interpreted in that tuning.
+This only needs to be specified once; further %! -- !% sections will use the same tuning
+unless there's an explicit change.  Options are OpenG, DoubleC, Modal (for sawmill tuning). 
+
 Each note is entered as (string).(fret).(duration).  To 2.0.4 means a quarter note on
 the open second string.  NOTE THAT STRINGS ARE COUNTED FROM ZERO like in python, so 
 the "5th string" drone is string number 4 in the above.
