@@ -14,7 +14,7 @@ notes = {
     10: 'ais',
     11: 'b'
 }
-frets = {notes[k]: k for k in notes}
+frets={notes[k]: k for k in notes}
 Tuning = {0: ('d', 1), 1: ('c', 1), 2: ('g', 0), 3: ('c', 0), 4: ('g', 1)}
 
 note = r'(?P<string>[0-9])\.(?P<fret>[0-9]+)\.(?P<duration>[0-9]+)'
