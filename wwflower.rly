@@ -4,12 +4,13 @@
   title="Wildwood Flower"
   composer = "Traditional (arr. Matt Brown)"
 }
+
 music ={
 \time 4/4
 \set Timing.beamExceptions = #'()
 \set Timing.beatStructure = 1,1,1,1
 
-%!
+%!OpenG
 r2 1.0.4 1.1.4
 !%
 \repeat volta 2 {
