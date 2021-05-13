@@ -1,42 +1,46 @@
 \version "2.22.1"
 \paper { indent=0 }
-\header {title="Soldier\'s Joy"}
+\header {title="Double C Template (D tune)"}
 music ={
 \time 4/4
 \set Timing.beamExceptions = #'()
 \set Timing.beatStructure = 1,1,1,1
 \repeat volta 2 {
 %!DoubleC
-2.0.4 3.4.4 3.0.4 3.4.4
-2.0.8 2.2.8 4.0.8 0.0.8 1.0.4 0.0.4
-2.0.4 3.4.4 3.0.4 3.4.4
-3.0.8 3.2.8 4.0.8 0.0.8 3.2.8 3.0.8 3.2.8 3.3.8
-2.0.4 3.4.4 3.0.4 3.4.4
-2.0.8 2.2.8 4.0.8 0.0.8 1.0.4 0.0.4
-0.2.8 0.0.8 1.0.8 0.0.8 4.0.8 0.0.8 2.4.4
-1.0.4 4.0.8 0.0.8 1.0.4 0.0.4
-!%
-}
-\repeat volta 2 {
-%!
-0.2.8 0.0.8 1.0.8 0.2.8 4.0.4 4.0.4
-0.0.4 1.0.4 0.3.4 4.0.4
-0.2.8 0.0.8 1.0.8 0.2.8 4.0.4 4.0.4
-1.2.8 1.0.8 2.3.8 2.4.8 2.0.4 4.0.4
-0.2.8 0.0.8 1.0.8 0.2.8 4.0.4 4.0.4
-0.0.4 1.0.4 0.3.4 4.0.4
-0.2.8 0.0.8 1.0.8 0.0.8 4.0.8 0.0.8 2.4.4
+
+(Apart here)
+
+
 !%
 }
 \alternative {
 {
 %!
-0.0.4 4.0.8 0.0.8 1.0.4 0.0.4
+A part first ending here
 !%
 }
 {
 %!
-1.0.4 2.0.4 3.0.2
+A part second ending here
+%!
+}
+}
+\repeat volta 2 {
+%!
+
+Bpart here
+
+!%
+}
+\alternative {
+{
+%!
+B part first ending here
+!%
+}
+{
+%!
+B part second ending here
 !%
 }
 }
