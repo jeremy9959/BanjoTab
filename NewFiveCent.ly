@@ -1,6 +1,7 @@
 \version "2.22.1"
 \paper { indent=0 }
 \header {title="New Five Cent"}
+tuning = \stringTuning <a'' d' a' d'' e''>
 music ={
 \time 4/4
 \repeat volta 2 {
@@ -34,13 +35,13 @@ music ={
      \omit StringNumber                                                         
      }                                                                          
      {                                                                          
-      \key d \major                                                             
+      \key d\major
       \numericTimeSignature                                                    
       {\transpose c d {\music}}                                               
     }                                                                               
   \new TabStaff \with {                                                         
     tablatureFormat = #fret-number-tablature-format-banjo                       
-    stringTunings = \stringTuning <a'' d' a' d'' e''>
+    stringTunings = \tuning
   }                                                                             
   {                                                                             
     {                                                                           
