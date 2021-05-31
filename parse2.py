@@ -1,4 +1,4 @@
-#!/home/jet08013/anaconda3/bin/python
+#!/Users/jteitelbaum/opt/anaconda3/bin/python
 
 import re
 import sys
