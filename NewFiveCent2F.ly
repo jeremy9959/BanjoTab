@@ -31,5 +31,9 @@ music ={
 \header {
 	piece = "aDADE"
 	}
+\layout {}
+\midi {
+      \tempo 4 = 100
+      }
 }		
 
