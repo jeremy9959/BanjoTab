@@ -14,10 +14,10 @@ e2 fis8 e8
 d2 d8 e8
 fis2.
 fis4. e8 fis8 e8
-fis8 e8 d4. fis8
+fis8 e8 d4 fis8 e8
 d2 d4
 a2.
-d4. d8 d8 e8
+d4. a8 d8 e8
 fis2 e4
 d2.~ d2.
 
@@ -32,7 +32,7 @@ e2 fis4
 e2.
 
 fis4. e8 fis8 e8
-fis8 e8 d8 d8 fis8 e8
+fis8 e8 d4 fis8 e8
 d2 d4
 a2.
 
