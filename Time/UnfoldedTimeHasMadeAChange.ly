@@ -85,7 +85,7 @@ chordline = \chordmode {
 }
 
 \score{
-   {
+  \unfoldRepeats {
 \new StaffGroup <<
   \new ChordNames  {
     \repeat volta 3 {\chordline}
@@ -102,13 +102,7 @@ chordline = \chordmode {
   \new Lyrics {
     \lyricsto "melody" {
       <<
-	{ \verseA \chorus}
-	\new Lyrics {
-	  \set associatedVoice = "melody"
-	  \verseB }
-	\new Lyrics {
-	  \set associatedVoice = "melody"
-	  \verseC }
+	{ \verseA \chorus \verseB \chorus \verseC \chorus}
       >>
     }
     }
