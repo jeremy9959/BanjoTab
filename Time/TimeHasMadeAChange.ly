@@ -3,6 +3,17 @@
 \header {title="Time Has Made a Change in Me"
 	 composer = "Harkins Freye"
          piece = "gDGBD"}
+words = \lyricmode {
+  Time has made a change since my child  hood days,
+  Ma -- --  ny of my friends ha -- ve gone a _ way,
+  Some I nev -- er mo -- re _ in this life will see,
+  Time has made a change in me.
+  Time has made a change in the old home place.
+  Time has made a change in each smil -- ing face.
+  And I know my friends _ _ can _  plain -- ly  see
+  Time has made a change in me.
+  }
+
 music ={
 \time 3/4
 %\set Timing.beamExceptions = #'()
@@ -62,11 +73,16 @@ d2.
   \new Staff \with {                                                             
      \omit StringNumber                                                         
      }                                                                          
-     {                                                                          
+  \new Voice = "melody" {
       \key g \major                                                             
       \numericTimeSignature                                                    
       {\transpose d g, {\relative a' {\music}}}
       }
+  \new Lyrics {
+    \lyricsto "melody" {
+      \words
+    }
+    }
   \new TabStaff \with {                                                         
     tablatureFormat = #fret-number-tablature-format-banjo                       
     stringTunings = \stringTuning <g' d g b d'>
@@ -80,5 +96,8 @@ d2.
     }                                                                           
   }
 >>
-%\midi{}
+\layout {}
+\midi{
+\tempo 4 = 90
+}
 }  
