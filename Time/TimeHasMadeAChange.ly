@@ -1,7 +1,7 @@
 \version "2.22.1"
 \layout {indent = 0}
 \header {title="Time Has Made a Change in Me"
-	 composer = "Traditional"
+	 composer = "Harkins Freye"
          piece = "gDGBD"}
 music ={
 \time 3/4
