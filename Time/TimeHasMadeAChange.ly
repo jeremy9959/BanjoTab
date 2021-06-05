@@ -1,6 +1,8 @@
 \version "2.22.1"
 \layout {indent = 0}
-\header {title="Time Has Made a Change in Me"}
+\header {title="Time Has Made a Change in Me"
+	 composer = "Traditional"
+         piece = "gDGBD"}
 music ={
 \time 3/4
 %\set Timing.beamExceptions = #'()
@@ -40,18 +42,30 @@ d4. a8 d8 e8
 fis2 e4
 d2.~
 d2.
+\bar "|."
 }
 
 
 \score{
 \new StaffGroup <<
+  \new ChordNames \chordmode {
+    g2. g2. c2. g2.
+    d2. d2. g2. g2.
+    g2. g2. c2. g2.
+    g2. d2. g2. g2.
+    e2.:m e2.:m g2. g2.
+    g2. g2. d2. d2.
+    g2. g2. c2. g2.
+    g2. d2. g2. g2.
+
+  }
   \new Staff \with {                                                             
      \omit StringNumber                                                         
      }                                                                          
      {                                                                          
-      \key d \major                                                             
+      \key g \major                                                             
       \numericTimeSignature                                                    
-      {\relative a' {\music}}
+      {\transpose d g, {\relative a' {\music}}}
       }
   \new TabStaff \with {                                                         
     tablatureFormat = #fret-number-tablature-format-banjo                       
@@ -62,7 +76,7 @@ d2.
       \clef moderntab                                                          
       \tabFullNotation
       \numericTimeSignature                                                    
-       {\relative a {\music}}
+       {\transpose d g, {\relative a {\music}}}
     }                                                                           
   }
 >>
