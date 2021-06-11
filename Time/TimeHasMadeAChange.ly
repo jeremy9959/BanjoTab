@@ -22,7 +22,7 @@ verseC = \lyricmode {
   Time has made a change in me.
   }
 chorus = \lyricmode {
-  Time has made a change in the old home place.
+  Time has made a change in the old home pla -- ce.
   Time has made a change in each smil -- ing face.
   And I know my friends _ _ can _  plain -- ly  see
   Time has made a change in me.
@@ -53,11 +53,11 @@ d2.~ d2.
 musicChorus = {
 b4. a8 b8 a8
 b2 b8 d8
-d2 b4
-a2.
+d2 d4
+b8 a8~ a2
 
 d4. a8 d8 e8
-fis2 e8 d8
+fis2 d8 e8
 e2 fis4
 e2.
 
@@ -79,7 +79,7 @@ chordline = \chordmode {
     g2. g2. c2. g2.
     g2. d2. g2. g2.
     e2.:m e2.:m g2. g2.
-    g2. g2. d2. d2.
+    g2. g2. a2. d2.
     g2. g2. c2. g2.
     g2. d2. g2. g2.
 }
