@@ -2,7 +2,9 @@
 \layout {indent = 0}
 \header {title="Time Has Made a Change in Me"
 	 composer = "Harkins Freye"
-         piece = "gDGBD"}
+         piece = "gDGBD"
+	 tagline = ##f
+       }
 verseA = \lyricmode {
   Time has made a change since my child  hood days,
   Ma -- --  ny of my friends ha -- ve gone a _ way,
