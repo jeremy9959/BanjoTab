@@ -58,9 +58,7 @@ Chords can be entered using <>:
 
 ![Time Has Made a Change in Me](./Time.png)
 
-
-
-
+![Soldier's Joy](./Soldiers.png)
 
 
 
