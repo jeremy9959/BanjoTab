@@ -1,0 +1,57 @@
+\version "2.22.1"
+\paper { indent=0 }
+\header {title="Liberty"}
+music ={
+\time 4/4
+\set Timing.beamExceptions = #'()
+\set Timing.beatStructure = 1,1,1,1
+\repeat volta 2 {
+%!DoubleC
+0.2.8 2.0.8 0.2.8 4.0.8 0.2.8 2.0.8 0.2.8 4.0.8
+0.2.8 2.0.8 0.2.8 4.0.8 0.2.8 0.0.8 1.0.4
+0.3.8 2.2.8 0.3.8 4.0.8 0.3.8 2.2.8 0.3.8 4.0.8
+0.3.8 2.2.8 0.3.8 4.0.8 0.3.8 1.4.8 0.0.8 4.0.8
+0.2.8 2.0.8 0.2.8 4.0.8 0.2.8 2.0.8 0.2.8 4.0.8
+0.2.8 2.0.8 0.2.8 4.0.8 0.2.8 0.0.8 1.0.4
+0.3.8 1.4.8 0.0.8 4.0.8 0.2.8 0.0.8 1.0.8 4.0.8 
+0.0.8 1.0.8 0.0.8 4.0.8 1.0.2
+!%
+}
+\repeat volta 2 {
+%!
+2.0.4 2.0.8 2.2.8 2.0.4 3.4.4
+2.0.4  2.5.4 1.4.8 1.2.8 1.0.4
+2.0.4 2.0.8 2.2.8 2.0.4 3.4.4
+3.2.8 3.0.8 3.2.8 3.4.8  3.2.8 3.4.8 3.5.4
+2.0.4 2.0.8 2.2.8 2.0.4 3.4.4
+2.0.4  2.5.4 1.4.8 1.2.8 1.0.4
+0.3.8 1.4.8 0.0.8 4.0.8 0.2.8 0.0.8 1.0.8 4.0.8 
+0.0.8 1.0.8 0.0.8 4.0.8 1.0.2
+!%
+}
+}
+
+
+\new StaffGroup <<
+  \new Staff \with {                                                             
+     \omit StringNumber                                                         
+     }                                                                          
+     {                                                                          
+      \key d \major                                                             
+      \numericTimeSignature                                                    
+      {\transpose c d {\music}}                                               
+    }                                                                               
+  \new TabStaff \with {                                                         
+    tablatureFormat = #fret-number-tablature-format-banjo                       
+    stringTunings = \stringTuning <a'' d' a' d'' e''>
+  }                                                                             
+  {                                                                             
+    {                                                                           
+      \clef moderntab                                                          
+      \numericTimeSignature                                                    
+      \tabFullNotation                                                         
+      {\transpose c d {\music}}                                               
+    }                                                                           
+  }
+>>
+  
