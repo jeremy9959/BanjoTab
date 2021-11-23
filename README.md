@@ -56,9 +56,11 @@ Chords can be entered using <>:
 
 ![New Five Cent](./NFC.png)
 
+![Liberty](./Liberty.png)
+
 ![Time Has Made a Change in Me](./Time.png)
 
-![Soldier's Joy](./Soldiers.png)
+
 
 
 
