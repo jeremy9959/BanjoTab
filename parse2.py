@@ -3,8 +3,10 @@
 import re
 import sys
 
+
 class UnrecognizedToken(Exception):
     pass
+
 
 notes = {
     0: "c",
@@ -22,15 +24,22 @@ notes = {
 }
 frets = {notes[k]: k for k in notes}
 Tunings = {}
-Tunings['OpenG'] = {0: ("d", 1), 1: ("b",0 ), 2: ("g", 0), 3: ("d", 0), 4: ("g", 1)}
-Tunings['DoubleC'] = {0: ("d", 1), 1: ("c",1 ), 2: ("g", 0), 3: ("c", 0), 4: ("g", 1)}
-Tunings['Modal'] = {0: ("d", 1), 1: ("c",1 ), 2: ("g", 0), 3: ("d", 0), 4: ("g", 1)}
+Tunings["OpenG"] = {0: ("d", 1), 1: ("b", 0), 2: ("g", 0), 3: ("d", 0), 4: ("g", 1)}
+Tunings["DoubleC"] = {0: ("d", 1), 1: ("c", 1), 2: ("g", 0), 3: ("c", 0), 4: ("g", 1)}
+Tunings["Modal"] = {0: ("d", 1), 1: ("c", 1), 2: ("g", 0), 3: ("d", 0), 4: ("g", 1)}
+Tunings["JohnRiley"] = {
+    0: ("d", 1),
+    1: ("c", 1),
+    2: ("g", 0),
+    3: ("d", 0),
+    4: ("f", 1),
+}
 
 # default is open G
-Tuning = Tunings['OpenG']
+Tuning = Tunings["OpenG"]
 
 tab = r"(%!(?P<tab>[^%]+)!%)"
-tuning = r"(OpenG|DoubleC|Modal)"
+tuning = r"(OpenG|DoubleC|Modal|JohnRiley)"
 note = r"(?P<string>[0-9])\.(?P<fret>[0-9]+)\.(?P<duration>[0-9]+)"
 chord = r"(?P<chord>\<\s*([0-9]\.[0-9]+\s+)+[0-9]\.[0-9]+\s*\>)(?P<duration>[0-9]+)"
 chord_note = r"(?P<string>[0-9])\.(?P<fret>[0-9]+)"
@@ -44,9 +53,9 @@ rest = r"(r(?P<duration>[0-9]+))"
 def fret_to_notes(base, tuning_octave, fret):
     start_fret = frets[base]
     point = (start_fret + fret) % 12
-    octaves = (start_fret + fret) //12 + tuning_octave
-    
-    return notes[point] + "'"*(octaves+1)
+    octaves = (start_fret + fret) // 12 + tuning_octave
+
+    return notes[point] + "'" * (octaves + 1)
 
 
 def decode_simple(loc, fret):
@@ -88,14 +97,14 @@ def parse(s):
             Tuning = Tunings[tuning_try.group(0)]
             i += tuning_try.end() - tuning_try.start()
             continue
-        
-        sbs_try = re.match(slur_beam_start,s[i:])
+
+        sbs_try = re.match(slur_beam_start, s[i:])
         if sbs_try:
             parsed += sbs_try.group(0)
             i += 1
             continue
 
-        sbe_try = re.match(slur_beam_end,s[i:])
+        sbe_try = re.match(slur_beam_end, s[i:])
         if sbe_try:
             parsed += sbe_try.group(0)
             i += 1
@@ -145,14 +154,15 @@ def parse(s):
 
     return parsed
 
+
 if __name__ == "__main__":
 
     if len(sys.argv) < 2:
         print("parse: Please supply a filename to parse", file=sys.stderr)
         sys.exit(1)
-        
+
     fname = sys.argv[1]
-    with open(fname, 'r') as f:
+    with open(fname, "r") as f:
         data = f.read()
         parsed = filter(data)
 
