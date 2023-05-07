@@ -1,4 +1,4 @@
-#!/home/jet08013/anaconda3/bin/python
+#!/usr/bin/env /home/jet08013/anaconda3/envs/pandas20/bin/python
 
 import re
 import sys
@@ -39,15 +39,29 @@ Tunings["JohnRiley"] = {
 Tuning = Tunings["OpenG"]
 
 tab = r"(%!(?P<tab>[^%]+)!%)"
-tuning = r"(OpenG|DoubleC|Modal|JohnRiley)"
-note = r"(?P<string>[0-9])\.(?P<fret>[0-9]+)\.(?P<duration>[0-9]+)"
-chord = r"(?P<chord>\<\s*([0-9]\.[0-9]+\s+)+[0-9]\.[0-9]+\s*\>)(?P<duration>[0-9]+)"
-chord_note = r"(?P<string>[0-9])\.(?P<fret>[0-9]+)"
-slur_beam_start = r"(\(|\[)"
-slur_beam_end = r"(\)|\])"
-tie = r"~"
-ws = r"\s+"
-rest = r"(r(?P<duration>[0-9]+))"
+tuning = r"(?P<tuning>OpenG|DoubleC|Modal|JohnRiley)"
+note = r"(?P<note>(?P<note_string>[0-9])\.(?P<note_fret>[0-9]+)\.(?P<note_duration>[0-9]+))"
+chord = r"(?P<chord>\<(?P<chord_strings>\s*([0-9]\.[0-9]+\s+)+[0-9]\.[0-9]+\s*)\>(?P<chord_duration>[0-9]+))"
+chord_note = r"(?P<chord_string>[0-9])\.(?P<chord_fret>[0-9]+)"
+slur_beam_start = r"(?P<beam_start>\(|\[)"
+slur_beam_end = r"(?P<beam_end>\)|\])"
+tie = r"(?P<tie>~)"
+ws = r"(?P<ws>\s+)"
+rest = r"(r(?P<rest_duration>[0-9]+))"
+
+patterns = [
+    tab,
+    tuning,
+    note,
+    chord,
+    chord_note,
+    slur_beam_start,
+    slur_beam_end,
+    tie,
+    ws,
+    rest,
+]
+pattern = re.compile("|".join(patterns))
 
 
 def fret_to_notes(base, tuning_octave, fret):
@@ -86,77 +100,74 @@ def filter(s):
     return result
 
 
-def parse(s):
-    global Tuning
+def parse(s, pattern=pattern):
+    global Tuning, Tunings
     parsed = ""
     N = len(s)
     i = 0
     while i < N:
-        tuning_try = re.match(tuning, s[i:])
-        if tuning_try:
-            Tuning = Tunings[tuning_try.group(0)]
-            i += tuning_try.end() - tuning_try.start()
-            continue
+        mo = re.match(pattern, s[i:])
+        match mo.lastgroup:
+            case "tuning":
+                Tuning = Tunings[mo.group(0)]
+                i += mo.end() - mo.start()
+                continue
 
-        sbs_try = re.match(slur_beam_start, s[i:])
-        if sbs_try:
-            parsed += sbs_try.group(0)
-            i += 1
-            continue
+            case "beam_start":
+                parsed += mo.group(0)
+                i += 1
+                continue
 
-        sbe_try = re.match(slur_beam_end, s[i:])
-        if sbe_try:
-            parsed += sbe_try.group(0)
-            i += 1
-            continue
+            case "beam_end":
+                parsed += mo.group(0)
+                i += 1
+                continue
 
-        if re.match(tie, s[i:]):
-            parsed += "~"
-            i += 1
-            continue
+            case "tie":
+                parsed += "~"
+                i += 1
+                continue
 
-        ws_try = re.match(ws, s[i:])
-        if ws_try:
-            parsed += " "
-            i += ws_try.end() - ws_try.start()
-            continue
+            case "ws":
+                parsed += " "
+                i += mo.end() - mo.start()
+                continue
 
-        note_try = re.match(note, s[i:])
-        if note_try:
-            i += note_try.end() - note_try.start()
-            lily = decode(
-                note_try.group("string"),
-                note_try.group("fret"),
-                note_try.group("duration"),
-            )
-            parsed += lily + "\\{}".format(int(note_try.group("string")) + 1)
-            continue
+            case "note":
+                i += mo.end() - mo.start()
+                lily = decode(
+                    mo.group("note_string"),
+                    mo.group("note_fret"),
+                    mo.group("note_duration"),
+                )
+                parsed += lily + "\\{}".format(int(mo.group("note_string")) + 1)
+                continue
 
-        chord_try = re.match(chord, s[i:])
-        if chord_try:
-            i += chord_try.end() - chord_try.start()
-            chord_string = chord_try.group("chord")
-            chord_duration = chord_try.group("duration")
-            chord_notes = re.findall(chord_note, chord_string)
-            parsed += "< "
-            for x in chord_notes:
-                parsed += decode_simple(x[0], x[1]) + "\\{} ".format(int(x[0]) + 1)
-            parsed += ">" + chord_duration
-            continue
+            case "chord":
+                i += mo.end() - mo.start()
+                chord_strings = mo.group("chord_strings")
+                chord_duration = mo.group("chord_duration")
+                chord_notes = re.findall(chord_note, chord_strings)
+                parsed += "< "
+                for x in chord_notes:
+                    parsed += decode_simple(x[0], x[1]) + "\\{} ".format(int(x[0]) + 1)
+                parsed += ">" + chord_duration
+                continue
 
-        rest_try = re.match(rest, s[i:])
-        if rest_try:
-            i += rest_try.end() - rest_try.start()
-            parsed += rest_try.group(0)
-            continue
+            case "rest":
+                i += mo.end() - mo.start()
+                parsed += mo.group(0)
+                continue
 
-        raise UnrecognizedToken("Unrecognized Token starting {}".format(s[i : i + 10]))
+            case _:
+                raise UnrecognizedToken(
+                    "Unrecognized Token starting {}".format(s[i : i + 10])
+                )
 
     return parsed
 
 
 if __name__ == "__main__":
-
     if len(sys.argv) < 2:
         print("parse: Please supply a filename to parse", file=sys.stderr)
         sys.exit(1)
