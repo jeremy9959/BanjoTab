@@ -88,10 +88,11 @@ def filter(s):
     result = ""
     i = 0
     N = len(s)
+    tuning = default_tuning
     while i < N:
         tab_try = re.match(tab, s[i:])
         if tab_try:
-            parsed = parse(tab_try.group("tab"), pattern, default_tuning)
+            parsed, tuning = parse(tab_try.group("tab"), pattern, tuning)
             result += parsed
             i += tab_try.end(0) - tab_try.start(0)
             continue
@@ -164,7 +165,7 @@ def parse(s, pattern=pattern, tuning=default_tuning):
                     "Unrecognized Token starting {}".format(s[i : i + 10])
                 )
 
-    return parsed
+    return parsed, tuning
 
 
 if __name__ == "__main__":
