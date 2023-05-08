@@ -36,7 +36,7 @@ Tunings["JohnRiley"] = {
 }
 
 # default is open G
-Tuning = Tunings["OpenG"]
+default_tuning = Tunings["OpenG"]
 
 tab = r"(%!(?P<tab>[^%]+)!%)"
 tuning = r"(?P<tuning>OpenG|DoubleC|Modal|JohnRiley)"
@@ -72,15 +72,15 @@ def fret_to_notes(base, tuning_octave, fret):
     return notes[point] + "'" * (octaves + 1)
 
 
-def decode_simple(loc, fret):
+def decode_simple(loc, fret, Tuning):
     tuning_note = Tuning[int(loc)][0]
     tuning_octave = Tuning[int(loc)][1]
     lily = fret_to_notes(tuning_note, tuning_octave, int(fret))
     return lily
 
 
-def decode(loc, fret, dur):
-    lily = decode_simple(loc, fret)
+def decode(loc, fret, dur, tuning):
+    lily = decode_simple(loc, fret, tuning)
     return lily + dur
 
 
@@ -91,7 +91,7 @@ def filter(s):
     while i < N:
         tab_try = re.match(tab, s[i:])
         if tab_try:
-            parsed = parse(tab_try.group("tab"))
+            parsed = parse(tab_try.group("tab"), pattern, default_tuning)
             result += parsed
             i += tab_try.end(0) - tab_try.start(0)
             continue
@@ -100,8 +100,7 @@ def filter(s):
     return result
 
 
-def parse(s, pattern=pattern):
-    global Tuning, Tunings
+def parse(s, pattern=pattern, tuning=default_tuning):
     parsed = ""
     N = len(s)
     i = 0
@@ -109,7 +108,7 @@ def parse(s, pattern=pattern):
         mo = re.match(pattern, s[i:])
         match mo.lastgroup:
             case "tuning":
-                Tuning = Tunings[mo.group(0)]
+                tuning = Tunings[mo.group(0)]
                 i += mo.end() - mo.start()
                 continue
 
@@ -139,6 +138,7 @@ def parse(s, pattern=pattern):
                     mo.group("note_string"),
                     mo.group("note_fret"),
                     mo.group("note_duration"),
+                    tuning,
                 )
                 parsed += lily + "\\{}".format(int(mo.group("note_string")) + 1)
                 continue
