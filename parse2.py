@@ -1,5 +1,3 @@
-#!/usr/bin/env /home/jet08013/anaconda3/envs/pandas20/bin/python
-
 import re
 import sys
 
@@ -47,7 +45,7 @@ slur_beam_start = r"(?P<beam_start>\(|\[)"
 slur_beam_end = r"(?P<beam_end>\)|\])"
 tie = r"(?P<tie>~)"
 ws = r"(?P<ws>\s+)"
-rest = r"(r(?P<rest_duration>[0-9]+))"
+rest = r"(?P<rest>r(?P<rest_duration>[0-9]+))"
 
 patterns = [
     tab,
@@ -58,8 +56,8 @@ patterns = [
     slur_beam_start,
     slur_beam_end,
     tie,
-    ws,
     rest,
+    ws,
 ]
 pattern = re.compile("|".join(patterns))
 
@@ -151,13 +149,15 @@ def parse(s, pattern=pattern, tuning=default_tuning):
                 chord_notes = re.findall(chord_note, chord_strings)
                 parsed += "< "
                 for x in chord_notes:
-                    parsed += decode_simple(x[0], x[1]) + "\\{} ".format(int(x[0]) + 1)
+                    parsed += decode_simple(x[0], x[1], tuning) + "\\{} ".format(
+                        int(x[0]) + 1
+                    )
                 parsed += ">" + chord_duration
                 continue
 
             case "rest":
                 i += mo.end() - mo.start()
-                parsed += mo.group(0)
+                parsed += "r" + mo.group("rest_duration")
                 continue
 
             case _:
