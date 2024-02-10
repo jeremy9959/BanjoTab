@@ -48,6 +48,7 @@ tie = r"(?P<tie>~)"
 ws = r"(?P<ws>\s+)"
 rest = r"(?P<rest>r(?P<rest_duration>[0-9]+))"
 
+
 patterns = [
     tab,
     tuning,
