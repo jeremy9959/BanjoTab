@@ -22,6 +22,7 @@ notes = {
     10: "ais",
     11: "b",
 }
+
 frets = {notes[k]: k for k in notes}
 Tunings = {}
 Tunings["OpenG"] = {0: ("d", 1), 1: ("b", 0), 2: ("g", 0), 3: ("d", 0), 4: ("g", 1)}
