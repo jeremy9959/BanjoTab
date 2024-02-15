@@ -47,7 +47,7 @@ slur_beam_end = r"(?P<beam_end>\)|\])"
 tie = r"(?P<tie>~)"
 ws = r"(?P<ws>\s+)"
 rest = r"(?P<rest>r(?P<rest_duration>[0-9]+))"
-
+brush = r"(?P<brush>b)"
 
 patterns = [
     tab,
@@ -60,6 +60,7 @@ patterns = [
     tie,
     rest,
     ws,
+    brush,
 ]
 pattern = re.compile("|".join(patterns))
 
@@ -160,6 +161,11 @@ def parse(s, pattern=pattern, tuning=default_tuning):
             case "rest":
                 i += mo.end() - mo.start()
                 parsed += "r" + mo.group("rest_duration")
+                continue
+
+            case "brush":
+                i += mo.end() - mo.start()
+                parsed += r"\arpeggio"
                 continue
 
             case _:
