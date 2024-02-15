@@ -1,5 +1,5 @@
 \version "2.22.1"
-\paper { indent=0 system-count=5 }
+\paper { indent=0 systems-per-page=5 }
 \header {title="Josie-O"
   composer = "Traditional (arr. Hurt/Brown)"
   piece = "fDGCD"
@@ -25,7 +25,6 @@ music ={
 
 \new StaffGroup <<
 \new Staff \with {                                                             
-	
      \omit StringNumber                                                         
      }                                                                          
      {                                                                          

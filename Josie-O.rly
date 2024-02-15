@@ -1,5 +1,5 @@
 \version "2.22.1"
-\paper { indent=0 }
+\paper { indent=0 systems-per-page=5 }
 \header {title="Josie-O"
   composer = "Traditional (arr. Hurt/Brown)"
   piece = "fDGCD"
