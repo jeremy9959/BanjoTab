@@ -47,6 +47,7 @@ slur_beam_end = r"(?P<beam_end>\)|\])"
 tie = r"(?P<tie>~)"
 ws = r"(?P<ws>\s+)"
 rest = r"(?P<rest>r(?P<rest_duration>[0-9]+))"
+tuplet = r"(?P<triplet>=\s*(?P<triplet_notes>(([0-9]\.[0-9]+\s+)+([0-9]\.[0-9]+\s*)))=(?P<triplet_duration>[0-9]+))"
 
 
 patterns = [
@@ -60,6 +61,7 @@ patterns = [
     tie,
     rest,
     ws,
+    triplet,
 ]
 pattern = re.compile("|".join(patterns))
 
@@ -160,6 +162,17 @@ def parse(s, pattern=pattern, tuning=default_tuning):
             case "rest":
                 i += mo.end() - mo.start()
                 parsed += "r" + mo.group("rest_duration")
+                continue
+
+            case "triplet":
+                i += mo.end() - mo.start()
+                triplet_notes = re.findall(chord_note, mo.group("triplet_notes"))
+                parsed += "\tuplet 3/2 { "
+                for x in triplet_notes:
+                    parsed += decode_simple(x[0], x[1], tuning) + "\\{} ".format(
+                        int(x[0]) + 1
+                    )
+                parsed += "}"
                 continue
 
             case _:
