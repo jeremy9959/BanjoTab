@@ -48,7 +48,8 @@ tie = r"(?P<tie>~)"
 ws = r"(?P<ws>\s+)"
 rest = r"(?P<rest>r(?P<rest_duration>[0-9]+))"
 tuplet = r"(?P<tuplet>=\s*(?P<tuplet_notes>(([0-9]\.[0-9]+\s+)+([0-9]\.[0-9]+\s*)))=(?P<tuplet_duration>[0-9]+))"
-
+xnote = r"(?P<xnote>x)"
+accent = r"(?P<accent>acc)"
 
 patterns = [
     tab,
@@ -62,6 +63,8 @@ patterns = [
     rest,
     ws,
     tuplet,
+    xnote,
+    accent,
 ]
 pattern = re.compile("|".join(patterns))
 
@@ -174,6 +177,16 @@ def parse(s, pattern=pattern, tuning=default_tuning):
                         int(x[0]) + 1
                     )
                 parsed += "}"
+                continue
+
+            case "xnote":
+                i += mo.end() - mo.start()
+                parsed += r" \xNote "
+                continue
+
+            case "accent":
+                i += mo.end() - mo.start()
+                parsed += r" \accent "
                 continue
 
             case _:
