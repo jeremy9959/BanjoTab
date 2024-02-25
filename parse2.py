@@ -47,7 +47,7 @@ slur_beam_end = r"(?P<beam_end>\)|\])"
 tie = r"(?P<tie>~)"
 ws = r"(?P<ws>\s+)"
 rest = r"(?P<rest>r(?P<rest_duration>[0-9]+))"
-tuplet = r"(?P<triplet>=\s*(?P<triplet_notes>(([0-9]\.[0-9]+\s+)+([0-9]\.[0-9]+\s*)))=(?P<triplet_duration>[0-9]+))"
+tuplet = r"(?P<tuplet>=\s*(?P<tuplet_notes>(([0-9]\.[0-9]+\s+)+([0-9]\.[0-9]+\s*)))=(?P<tuplet_duration>[0-9]+))"
 
 
 patterns = [
@@ -61,7 +61,7 @@ patterns = [
     tie,
     rest,
     ws,
-    triplet,
+    tuplet,
 ]
 pattern = re.compile("|".join(patterns))
 
@@ -164,11 +164,12 @@ def parse(s, pattern=pattern, tuning=default_tuning):
                 parsed += "r" + mo.group("rest_duration")
                 continue
 
-            case "triplet":
+            case "tuplet":
                 i += mo.end() - mo.start()
-                triplet_notes = re.findall(chord_note, mo.group("triplet_notes"))
-                parsed += "\tuplet 3/2 { "
-                for x in triplet_notes:
+                tuplet_notes = re.findall(chord_note, mo.group("tuplet_notes"))
+                tuplet_duration = mo.group("tuplet_duration")
+                parsed += r"\tuplet" + f"{len(tuplet_notes)}/{tuplet_duration}" + " { "
+                for x in tuplet_notes:
                     parsed += decode_simple(x[0], x[1], tuning) + "\\{} ".format(
                         int(x[0]) + 1
                     )
