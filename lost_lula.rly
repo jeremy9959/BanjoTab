@@ -69,7 +69,8 @@ x 0.0.8 4.0.8 0.0.4 0.0.8 4.0.8 acc x 0.0.8 1.0.8 2.2.4
        \music                                    
     }                                                                                 
                                                                          
-  \new TabStaff \with {                                                         
+  \new TabStaff \with { 
+     \key f \major                                                        
     tablatureFormat = #fret-number-tablature-format-banjo                       
     stringTunings = \stringTuning <f'' d' g' c'' d''>
   }                                                                             
