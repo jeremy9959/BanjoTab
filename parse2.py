@@ -1,10 +1,5 @@
-import re
+import pyparsing as pp
 import sys
-
-
-class UnrecognizedToken(Exception):
-    pass
-
 
 notes = {
     0: "c",
@@ -33,47 +28,19 @@ Tunings["JohnRiley"] = {
     3: ("d", 0),
     4: ("f", 1),
 }
+tuning = Tunings["OpenG"]
 
-# default is open G
-default_tuning = Tunings["OpenG"]
 
-tab = r"(%!(?P<tab>[^%]+)!%)"
-tuning = r"(?P<tuning>OpenG|DoubleC|Modal|JohnRiley)"
-note = r"(?P<note>(?P<note_string>[0-9])\.(?P<note_fret>[0-9]+)\.(?P<note_duration>[0-9]+))"
-chord = r"(?P<chord>\<(?P<chord_strings>\s*([0-9]\.[0-9]+\s+)+[0-9]\.[0-9]+\s*)\>(?P<chord_duration>[0-9]+))"
-chord_note = r"(?P<chord_string>[0-9])\.(?P<chord_fret>[0-9]+)"
-slur_beam_start = r"(?P<beam_start>\(|\[)"
-slur_beam_end = r"(?P<beam_end>\)|\])"
-tie = r"(?P<tie>~)"
-ws = r"(?P<ws>\s+)"
-rest = r"(?P<rest>r(?P<rest_duration>[0-9]+))"
-tuplet = r"(?P<tuplet>=\s*(?P<tuplet_notes>(([0-9]\.[0-9]+\s+)+([0-9]\.[0-9]+\s*)))=(?P<tuplet_duration>[0-9]+))"
-xnote = r"(?P<xnote>x)"
-accent = r"(?P<accent>acc)"
-
-patterns = [
-    tab,
-    tuning,
-    note,
-    chord,
-    chord_note,
-    slur_beam_start,
-    slur_beam_end,
-    tie,
-    rest,
-    ws,
-    tuplet,
-    xnote,
-    accent,
-]
-pattern = re.compile("|".join(patterns))
+def set_tuning(t):
+    global tuning
+    tuning = Tunings[t[0]]
+    return t
 
 
 def fret_to_notes(base, tuning_octave, fret):
     start_fret = frets[base]
     point = (start_fret + fret) % 12
     octaves = (start_fret + fret) // 12 + tuning_octave
-
     return notes[point] + "'" * (octaves + 1)
 
 
@@ -89,122 +56,154 @@ def decode(loc, fret, dur, tuning):
     return lily + dur
 
 
-def filter(s):
-    result = ""
-    i = 0
-    N = len(s)
-    tuning = default_tuning
-    while i < N:
-        tab_try = re.match(tab, s[i:])
-        if tab_try:
-            parsed, tuning = parse(tab_try.group("tab"), pattern, tuning)
-            result += parsed
-            i += tab_try.end(0) - tab_try.start(0)
-            continue
-        result += s[i]
-        i += 1
-    return result
+def parse_note(tok):
+    lily = decode(tok.note.pitch.string, tok.note.pitch.fret, tok.note.duration, tuning)
+    answer = lily + "\\{}".format(int(tok.note.pitch.string) + 1)
+    return answer
 
 
-def parse(s, pattern=pattern, tuning=default_tuning):
-    parsed = ""
-    N = len(s)
-    i = 0
-    while i < N:
-        mo = re.match(pattern, s[i:])
-        match mo.lastgroup:
-            case "tuning":
-                tuning = Tunings[mo.group(0)]
-                i += mo.end() - mo.start()
-                continue
+def parse_chord(tok):
+    chord_pitches = tok.chord_pitches
+    chord_duration = tok.duration
+    answer = "< "
+    for x in chord_pitches:
+        answer += decode_simple(x.string, x.fret, tuning) + "\\{} ".format(
+            int(x.string) + 1
+        )
+    answer += ">" + chord_duration
+    return answer
 
-            case "beam_start":
-                parsed += mo.group(0)
-                i += 1
-                continue
 
-            case "beam_end":
-                parsed += mo.group(0)
-                i += 1
-                continue
+def parse_tuplet(tok):
+    tuplet_pitches = tok.tuplet_pitches
+    tuplet_duration = tok.tuplet_duration
+    answer = r"\tuplet " + f"{len(tuplet_pitches)}/{tuplet_duration}"
+    answer += (
+        " { "
+        + " ".join(
+            [
+                decode_simple(x.string, x.fret, tuning)
+                + "\\{}".format(int(x.string) + 1)
+                for x in tuplet_pitches
+            ]
+        )
+        + " } "
+    )
+    return answer
 
-            case "tie":
-                parsed += "~"
-                i += 1
-                continue
 
-            case "ws":
-                parsed += " "
-                i += mo.end() - mo.start()
-                continue
+def parse_rest(tok):
+    return tok
 
-            case "note":
-                i += mo.end() - mo.start()
-                lily = decode(
-                    mo.group("note_string"),
-                    mo.group("note_fret"),
-                    mo.group("note_duration"),
-                    tuning,
-                )
-                parsed += lily + "\\{}".format(int(mo.group("note_string")) + 1)
-                continue
 
-            case "chord":
-                i += mo.end() - mo.start()
-                chord_strings = mo.group("chord_strings")
-                chord_duration = mo.group("chord_duration")
-                chord_notes = re.findall(chord_note, chord_strings)
-                parsed += "< "
-                for x in chord_notes:
-                    parsed += decode_simple(x[0], x[1], tuning) + "\\{} ".format(
-                        int(x[0]) + 1
-                    )
-                parsed += ">" + chord_duration
-                continue
+def parse_xnote(tok):
+    return r" \xNote "
 
-            case "rest":
-                i += mo.end() - mo.start()
-                parsed += "r" + mo.group("rest_duration")
-                continue
 
-            case "tuplet":
-                i += mo.end() - mo.start()
-                tuplet_notes = re.findall(chord_note, mo.group("tuplet_notes"))
-                tuplet_duration = mo.group("tuplet_duration")
-                parsed += r"\tuplet" + f"{len(tuplet_notes)}/{tuplet_duration}" + " { "
-                for x in tuplet_notes:
-                    parsed += decode_simple(x[0], x[1], tuning) + "\\{} ".format(
-                        int(x[0]) + 1
-                    )
-                parsed += "}"
-                continue
+def parse_accent(tok):
+    return r" \accent "
 
-            case "xnote":
-                i += mo.end() - mo.start()
-                parsed += r" \xNote "
-                continue
 
-            case "accent":
-                i += mo.end() - mo.start()
-                parsed += r" \accent "
-                continue
+LDELIM = pp.Literal("%!").suppress()
+RDELIM = pp.Literal("!%").suppress()
 
-            case _:
-                raise UnrecognizedToken(
-                    "Unrecognized Token starting {}".format(s[i : i + 10])
-                )
+tuning_key = (
+    (
+        pp.Literal("OpenG")
+        | pp.Literal("DoubleC")
+        | pp.Literal("Modal")
+        | pp.Literal("JohnRiley")
+    )
+    .set_parse_action(set_tuning)
+    .suppress()
+)
 
-    return parsed, tuning
+pitch = pp.Combine(
+    pp.Word(pp.nums, exact=1).set_results_name("string")
+    + pp.Literal(".")
+    + pp.Word(pp.nums, max=2).set_results_name("fret")
+).set_results_name("pitch")
+
+note = (
+    pp.Combine(
+        pitch.set_results_name("pitch")
+        + pp.Literal(".")
+        + pp.Word(pp.nums, max=2).set_results_name("duration")
+    )
+    .set_results_name("note")
+    .set_parse_action(parse_note)
+)
+
+
+chord = (
+    (
+        pp.Literal("<")
+        + pp.OneOrMore(pitch).set_results_name("chord_pitches")
+        + pp.Combine(
+            pp.Literal(">") + pp.Word(pp.nums, max=2).set_results_name("duration")
+        )
+    )
+    .set_results_name("chord")
+    .set_parse_action(parse_chord)
+)
+
+tuplet = (
+    (
+        pp.Literal("=")
+        + pp.OneOrMore(pitch).set_results_name("tuplet_pitches")
+        + pp.Combine(
+            pp.Literal("=")
+            + pp.Word(pp.nums, max=2).set_results_name("tuplet_duration")
+        )
+    )
+    .set_results_name("tuplet")
+    .set_parse_action(parse_tuplet)
+)
+
+slur_beam_start = (pp.Literal("(") | pp.Literal("[")).set_results_name("beam_start")
+slur_beam_end = (pp.Literal(")") | pp.Literal("]")).set_results_name("beam_end")
+tie = pp.Literal("~").set_results_name("tie")
+rest = (
+    pp.Combine(pp.Literal("r") + pp.Word(pp.nums, max=2))
+    .set_results_name("rest")
+    .set_parse_action(parse_rest)
+)
+
+xnote = pp.Literal("x").set_results_name("xnote").set_parse_action(parse_xnote)
+accent = pp.Literal("acc").set_results_name("accent").set_parse_action(parse_accent)
+
+tab = (
+    LDELIM
+    + pp.ZeroOrMore(tuning_key)
+    + pp.OneOrMore(
+        note
+        | chord
+        | slur_beam_start
+        | slur_beam_end
+        | tie
+        | tuplet
+        | rest
+        | xnote
+        | accent
+    )
+    + RDELIM
+)
+
+
+def parse_file(filename):
+    answer = ""
+    with open(filename, "r") as f:
+        tune = f.read().expandtabs()
+        loc = 0
+        for x, start, end in tab.scan_string(tune):
+            answer += tune[loc:start]
+            answer += " ".join(x)
+            loc = end
+        answer += tune[loc:]
+    return answer
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("parse: Please supply a filename to parse", file=sys.stderr)
-        sys.exit(1)
-
-    fname = sys.argv[1]
-    with open(fname, "r") as f:
-        data = f.read()
-        parsed = filter(data)
-
-    print(parsed)
+    filename = sys.argv[1]
+    answer = parse_file(filename)
+    print(answer)
