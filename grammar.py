@@ -1,6 +1,5 @@
 import pyparsing as pp
 
-
 notes = {
     0: "c",
     1: "cis",
@@ -28,6 +27,13 @@ Tunings["JohnRiley"] = {
     3: ("d", 0),
     4: ("f", 1),
 }
+tuning = Tunings["OpenG"]
+
+
+def set_tuning(t):
+    global tuning
+    tuning = Tunings[t[0]]
+    return t
 
 
 def fret_to_notes(base, tuning_octave, fret):
@@ -51,16 +57,17 @@ def decode(loc, fret, dur, tuning):
 
 
 def parse_note(tok):
-    lily = decode(tok.string, tok.fret, tok.duration, tuning)
-    answer = lily + "\\{}".format(int(tok.string) + 1)
+    lily = decode(tok.note.pitch.string, tok.note.pitch.fret, tok.note.duration, tuning)
+    answer = lily + "\\{}".format(int(tok.note.pitch.string) + 1)
     return answer
 
 
 def parse_chord(tok):
-    chord_notes = tok.chord_notes
+    chord_pitches = tok.chord_pitches
+
     chord_duration = tok.duration
     answer = "< "
-    for x in chord_notes:
+    for x in chord_pitches:
         answer += decode_simple(x.string, x.fret, tuning) + "\\{} ".format(
             int(x.string) + 1
         )
@@ -68,30 +75,32 @@ def parse_chord(tok):
     return answer
 
 
-# tab = r"(%!(?P<tab>[^%]+)!%)"
-# tuning = r"(?P<tuning>OpenG|DoubleC|Modal|JohnRiley)"
-# note = r"(?P<note>(?P<note_string>[0-9])\.(?P<note_fret>[0-9]+)\.(?P<note_duration>[0-9]+))"
-# chord = r"(?P<chord>\<(?P<chord_strings>\s*([0-9]\.[0-9]+\s+)+[0-9]\.[0-9]+\s*)\>(?P<chord_duration>[0-9]+))"
-# chord_note = r"(?P<chord_string>[0-9])\.(?P<chord_fret>[0-9]+)"
-# slur_beam_start = r"(?P<beam_start>\(|\[)"
-# slur_beam_end = r"(?P<beam_end>\)|\])"
-# tie = r"(?P<tie>~)"
-# ws = r"(?P<ws>\s+)"
-# rest = r"(?P<rest>r(?P<rest_duration>[0-9]+))"
-# tuplet = r"(?P<tuplet>=\s*(?P<tuplet_notes>(([0-9]\.[0-9]+\s+)+([0-9]\.[0-9]+\s*)))=(?P<tuplet_duration>[0-9]+))"
-# xnote = r"(?P<xnote>x)"
-# accent = r"(?P<accent>acc)"
+def parse_rest(tok):
+    return tok
+
+
+def parse_xnote(tok):
+    return r" \xNote "
+
+
+def parse_accent(tok):
+    return r" \accent "
+
+
+def parse_tuplet(tok):
+    tuplet_notes = tok.tuplet_notes
+    tuplet_duration = tok.tuplet_duration
+    answer = r"\tuplet" + f"{len(tuplet_notes)}/{tuplet_duration}" + " { "
+    for x in tuplet_notes:
+        answer += decode_simple(x.string, x.fret, tuning) + "\\{} ".format(
+            int(x.string) + 1
+        )
+    answer += " } "
+    return answer
+
 
 LDELIM = pp.Literal("%!").suppress()
 RDELIM = pp.Literal("!%").suppress()
-tuning = Tunings["OpenG"]
-
-
-def set_tuning(t):
-    global tuning
-    tuning = Tunings[t[0]]
-    return t
-
 
 tuning_key = (
     (
@@ -104,28 +113,27 @@ tuning_key = (
     .suppress()
 )
 
-
-note = pp.Combine(
+pitch = pp.Combine(
     pp.Word(pp.nums, exact=1).set_results_name("string")
     + pp.Literal(".")
     + pp.Word(pp.nums, max=2).set_results_name("fret")
-    + pp.Literal(".")
-    + pp.Word(pp.nums, max=2).set_results_name("duration")
-).set_parse_action(parse_note)
+).set_results_name("pitch")
 
+note = (
+    pp.Combine(
+        pitch.set_results_name("pitch")
+        + pp.Literal(".")
+        + pp.Word(pp.nums, max=2).set_results_name("duration")
+    )
+    .set_results_name("note")
+    .set_parse_action(parse_note)
+)
 
-chord_note = pp.Combine(
-    pp.Word(pp.nums, exact=1).set_results_name("string")
-    + pp.Literal(".")
-    + pp.Word(pp.nums, max=2).set_results_name("fret")
-).set_results_name("chord_note")
-
-chord_notes = (pp.OneOrMore(chord_note)).set_results_name("chord_notes")
 
 chord = (
     (
         pp.Literal("<")
-        + chord_notes
+        + pp.OneOrMore(pitch).set_results_name("chord_pitches")
         + pp.Combine(
             pp.Literal(">") + pp.Word(pp.nums, max=2).set_results_name("duration")
         )
@@ -134,12 +142,17 @@ chord = (
     .set_parse_action(parse_chord)
 )
 
+
 slur_beam_start = (pp.Literal("(") | pp.Literal("[")).set_results_name("beam_start")
 slur_beam_end = (pp.Literal(")") | pp.Literal("]")).set_results_name("beam_end")
 
 tie = pp.Literal("~").set_results_name("tie")
 
-rest = pp.Combine(pp.Literal("r") + pp.Word(pp.nums, max=2)).set_results_name("rest")
+rest = (
+    pp.Combine(pp.Literal("r") + pp.Word(pp.nums, max=2))
+    .set_results_name("rest")
+    .set_parse_action(parse_rest)
+)
 
 tuplet_note = pp.Combine(
     pp.Word(pp.nums, exact=1).set_results_name("string")
@@ -147,13 +160,18 @@ tuplet_note = pp.Combine(
     + pp.Word(pp.nums, max=2).set_results_name("fret")
 ).set_results_name("tuplet_note")
 
+tuplet_notes = pp.OneOrMore(tuplet_note).set_results_name("tuplet_notes")
 
-tuplet = pp.Combine(
-    pp.Literal("=") + pp.ZeroOrMore(tuplet_note) + pp.Literal("=")
-) + pp.Word(pp.nums, max=2).set_results_name("tuplet_duration")
+tuplet = (
+    pp.Literal("=")
+    + tuplet_notes
+    + pp.Combine(
+        pp.Literal("=") + pp.Word(pp.nums, max=2).set_results_name("tuplet_duration")
+    )
+).set_parse_action(parse_tuplet)
 
-xnote = pp.Literal("x").set_results_name("xnote")
-accent = pp.Literal("acc").set_results_name("accent")
+xnote = pp.Literal("x").set_results_name("xnote").set_parse_action(parse_xnote)
+accent = pp.Literal("acc").set_results_name("accent").set_parse_action(parse_accent)
 
 tab = (
     LDELIM
@@ -172,11 +190,16 @@ tab = (
     + RDELIM
 )
 
-with open("Liberty.rly", "r") as f:
-    tune = f.read().expandtabs()
-    loc = 0
-    for x, start, end in tab.scan_string(tune):
-        print(tune[loc:start])
-        print(" ".join(x))
-        loc = end
-    print(tune[loc:])
+
+tune = r"%! <0.0 1.0 2.4>4 !%"
+x = tab.parse_string(tune)
+print(x.dump())
+
+# with open("wwflower.rly", "r") as f:
+#     tune = f.read().expandtabs()
+#     loc = 0
+#     for x, start, end in tab.scan_string(tune):
+#         print(tune[loc:start])
+#         print(" ".join(x))
+#         loc = end
+#     print(tune[loc:])
