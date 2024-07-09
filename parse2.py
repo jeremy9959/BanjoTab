@@ -192,17 +192,22 @@ tab = (
 )
 
 
-def parse_file(filename):
+def parse_string(s):
+    s = s.expandtabs()
+    loc = 0
     answer = ""
-    with open(filename, "r") as f:
-        tune = f.read().expandtabs()
-        loc = 0
-        for x, start, end in tab.scan_string(tune):
-            answer += tune[loc:start]
-            answer += " ".join(x)
-            loc = end
-        answer += tune[loc:]
+    for x, start, end in tab.scan_string(s):
+        answer += s[loc:start]
+        answer += " ".join(x)
+        loc = end
+    answer += s[loc:]
     return answer
+
+
+def parse_file(filename):
+    with open(filename, "r") as f:
+        tune = f.read()
+    return parse_string(tune)
 
 
 if __name__ == "__main__":
