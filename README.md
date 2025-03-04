@@ -54,11 +54,20 @@ Chords can be entered using <>:
 
 ## Examples
 
-![New Five Cent](./NFC.png)
+![New Five Cent](music/NFC.png)
 
-![Liberty](./Liberty.png)
+[rly file](music/NewFiveCent2F.rly)
 
-![Time Has Made a Change in Me](./Time.png)
+![Liberty](music/Liberty.png)
+
+[rly file](music/Liberty.rly)
+
+[Time Has Made a Change in Me](music/Time.png)
+
+[rly file](music/Time.rly)
+
+
+
 
 
 
