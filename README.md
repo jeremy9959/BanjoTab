@@ -62,7 +62,7 @@ Chords can be entered using <>:
 
 [rly file](music/Liberty.rly)
 
-[Time Has Made a Change in Me](music/Time.png)
+![Time Has Made a Change in Me](music/Time.png)
 
 [rly file](music/Time.rly)
 
