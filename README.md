@@ -60,11 +60,10 @@ Chords can be entered using <>:
 
 ![Liberty](music/Liberty.png)
 
-[rly file](music/Liberty.rly)
+[rly file](music/liberty.rly)
 
 ![Time Has Made a Change in Me](music/Time.png)
 
-[rly file](music/Time.rly)
 
 
 
